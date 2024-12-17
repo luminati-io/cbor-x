@@ -1,7 +1,7 @@
 {
-  "name": "cbor-x",
+  "name": "@luminati-io/cbor-x",
   "author": "Kris Zyp",
-  "version": "1.6.1",
+  "version": "1.6.1-lum.1",
   "description": "Ultra-fast and conformant CBOR (RFC 8949) implementation with support for numerous tag extensions including records and structured cloning",
   "license": "MIT",
   "types": "./index.d.ts",
@@ -15,7 +15,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "http://github.com/kriszyp/cbor-x"
+    "url": "http://github.com/luminati-io/cbor-x"
   },
   "scripts": {
     "benchmark": "node ./tests/benchmark.cjs",
