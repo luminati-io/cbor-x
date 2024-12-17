@@ -601,6 +601,32 @@ suite('CBOR basic tests', function(){
 		var deserialized = decode(serialized)
 		assert.deepEqual(deserialized, data)
 	})
+	test('skip symbol and function', function() {
+		var encoder = new Encoder({
+			useRecords: false,
+			structuredClone: true,
+			replacer_fn: () => {},
+		})
+		assert.deepEqual(decode(encode({a: Symbol('a')})), {});
+		assert.deepEqual(decode(encoder.encode(Symbol('a'))), undefined);
+		assert.deepEqual(decode(encode({a: ()=>{}})), {});
+		assert.deepEqual(decode(encode(()=>{})), undefined);
+	})
+	test('with replacer', function() {
+		var encoder = new Encoder({
+			useRecords: false,
+			structuredClone: true,
+			replacer_fn: (value) => {
+				if (value instanceof MyClass)
+					return {__ipc__: 'MyClass', value: '[replaced]'};
+			},
+		})
+		class MyClass {}
+		assert.deepEqual(decode(encoder.encode({a: new MyClass()})),
+			{a: {__ipc__: 'MyClass', value: '[replaced]'}});
+		assert.deepEqual(decode(encoder.encode(new MyClass())),
+			{__ipc__: 'MyClass', value: '[replaced]'});
+	})
 	test('decimal float32', function() {
 		var data = {
 			a: 2.526,

@@ -256,6 +256,7 @@ export class Encoder extends Decoder {
 			}
 		}
 		const encode = (value) => {
+			value = encoder.replacer_fn && encoder.replacer_fn(value) || value;
 			if (position > safeEnd)
 				target = makeRoom(position)
 
@@ -603,6 +604,10 @@ export class Encoder extends Decoder {
 				position += 8
 			} else if (type === 'undefined') {
 				target[position++] = 0xf7
+			} else if (type === 'symbol') {
+				target[position++] = 0xf7
+			} else if (type === 'function') {
+				target[position++] = 0xf7
 			} else {
 				throw new Error('Unknown type: ' + type)
 			}
@@ -652,10 +657,18 @@ export class Encoder extends Decoder {
 					size++
 				}
 			} else { 
-				for (let key in object) if (typeof object.hasOwnProperty !== 'function' || object.hasOwnProperty(key)) {
+				for (let key in object)
+				{
+					const type = typeof object[key];
+					if (type === 'function' || type === 'symbol')
+						continue;
+					if (typeof object.hasOwnProperty !== 'function' || object.hasOwnProperty(key))
+					{
+						// const value = encoder.replacer_fn && encoder.replacer_fn(object[key]) || object[key];
 						encode(key)
 						encode(object[key])
-					size++
+						size++
+					}
 				}
 			}
 			target[objectOffset++ + start] = size >> 8
