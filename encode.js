@@ -646,9 +646,9 @@ export class Encoder extends Decoder {
 			}
 		} :
 		(object) => {
-			target[position++] = 0xb9 // always use map 16, so we can preallocate and set the length afterwards
+			target[position++] = 0xba // always use map 32, so we can preallocate and set the length afterwards
 			let objectOffset = position - start
-			position += 2
+		    position += 4
 			let size = 0
 			if (encoder.keyMap) {
 				for (let key in object) if (typeof object.hasOwnProperty !== 'function' || object.hasOwnProperty(key)) {
@@ -671,8 +671,10 @@ export class Encoder extends Decoder {
 					}
 				}
 			}
-			target[objectOffset++ + start] = size >> 8
-			target[objectOffset + start] = size & 0xff
+			target[objectOffset++ + start] = (size >> 24) & 0xff  // highest byte
+			target[objectOffset++ + start] = (size >> 16) & 0xff  // second byte
+			target[objectOffset++ + start] = (size >> 8) & 0xff   // third byte
+			target[objectOffset + start] = size & 0xff            // lowest byte
 		} :
 		(object, skipValues) => {
 			let nextTransition, transition = structures.transitions || (structures.transitions = Object.create(null))
